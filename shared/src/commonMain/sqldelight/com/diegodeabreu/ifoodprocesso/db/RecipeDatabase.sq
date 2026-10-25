@@ -1,0 +1,22 @@
+CREATE TABLE recipeEntity (
+    id INTEGER PRIMARY KEY NOT NULL,
+    title TEXT NOT NULL,
+    imageUrl TEXT,
+    summary TEXT,
+    readyInMinutes INTEGER,
+    servings INTEGER,
+    isFavorite INTEGER NOT NULL DEFAULT 0
+);
+
+selectFavorites:
+SELECT * FROM recipeEntity WHERE isFavorite = 1;
+
+selectById:
+SELECT * FROM recipeEntity WHERE id = ?;
+
+upsertRecipe:
+INSERT OR REPLACE INTO recipeEntity(id, title, imageUrl, summary, readyInMinutes, servings, isFavorite)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+updateFavorite:
+UPDATE recipeEntity SET isFavorite = ? WHERE id = ?;
