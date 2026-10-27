@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         AppContextHolder.init(applicationContext)
+        AppContextHolder.setActivity(this)
 
         try {
             startKoin {
