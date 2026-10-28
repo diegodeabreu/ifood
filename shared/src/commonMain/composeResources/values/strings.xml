@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_title">Spoonacular Recipe Search</string>
+    <string name="search_tab">🔍 Search</string>
+    <string name="saved_tab">⭐ Saved</string>
+    <string name="no_saved_recipes">No saved recipes yet.\nTap the heart icon ⭐ on any recipe to save it!</string>
+    <string name="total_saved">Total saved: %d recipes</string>
+    <string name="prev_button">« Prev</string>
+    <string name="next_button">Next »</string>
+    <string name="page_indicator">Page %d of %d</string>
+    <string name="search_hint">Search recipes (e.g. frango, massa, bolo)</string>
+    <string name="search_button">Search</string>
+    <string name="clear_button">Clear Search</string>
+    <string name="type_keyword_prompt">Type a keyword and press Search to find recipes.</string>
+    <string name="no_recipes_found">No recipes found.</string>
+    <string name="total_found">Total found: %d recipes</string>
+    <string name="error_prefix">Error: %s</string>
+    <string name="ready_in_time">⏱ Ready in %d minutes</string>
+    <string name="servings_label">🍽 Servings: %d</string>
+    <string name="back_to_results">← Back to Results</string>
+    <string name="ingredients_header">Ingredients</string>
+    <string name="instructions_header">Instructions</string>
+    <string name="summary_header">Summary</string>
+    <string name="similar_recipes_header">💡 You might also like (Similar Recipes):</string>
+    <string name="exit_prompt">Pressione voltar novamente para sair</string>
+</resources>
