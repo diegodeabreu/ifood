@@ -1,5 +1,8 @@
 package com.diegodeabreu.ifoodprocesso.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class RecipeDetail(
     val id: Long,
     val title: String,
@@ -15,16 +18,19 @@ data class RecipeDetail(
     val similarRecipes: List<SimilarRecipe> = emptyList(),
 )
 
+@Serializable
 data class Ingredient(
     val name: String,
     val original: String?,
 )
 
+@Serializable
 data class RecipeStep(
     val number: Int,
     val step: String,
 )
 
+@Serializable
 data class SimilarRecipe(
     val id: Long,
     val title: String,

@@ -24,6 +24,38 @@ object Strings {
     const val starFilled = "⭐"
     const val starEmpty = "☆"
 
+    const val failedToLoadRecipeDetails = "Failed to load recipe details"
+    const val unknownError = "Unknown error occurred"
+    const val networkError = "Network error occurred"
+    const val offlineDetailsMissing = "Sem conexão com a internet. Os detalhes desta receita ainda não foram salvos offline."
+    const val offlineNetworkError = "Sem conexão com a internet. Verifique sua rede e tente novamente."
+    const val summaryUnavailable = "Resumo indisponível offline."
+    const val instructionsUnavailable = "Modo de preparo indisponível offline. Conecte-se à internet para carregar os detalhes completos."
+    const val offlineDetailsNotice = "Esta receita foi salva offline. Conecte-se à internet para carregar os ingredientes e modo de preparo completos."
+
+    // State Bundle Keys
+    const val keySearchQuery = "searchQuery"
+    const val keyCurrentTab = "currentTab"
+
+    // Analytics Screens & Events
+    const val screenRecipe = "RecipeScreen"
+    const val screenRecipeDetail = "RecipeDetailScreen"
+    const val eventSearch = "recipe_search"
+    const val eventViewDetail = "recipe_view_detail"
+    const val eventFavoriteToggle = "recipe_favorite_toggle"
+    const val eventTabSwitch = "tab_switch"
+    const val eventClearSearch = "clear_search"
+    const val eventSearchPagination = "search_pagination"
+    const val eventFavoritePagination = "favorite_pagination"
+
+    // Analytics Params
+    const val paramQuery = "query"
+    const val paramPage = "page"
+    const val paramTab = "tab"
+    const val paramRecipeId = "recipe_id"
+    const val paramTitle = "title"
+    const val paramIsFavorite = "is_favorite"
+
     fun totalSaved(count: Int) = "Total saved: $count recipes"
     fun totalFound(count: Int) = "Total found: $count recipes"
     fun pageIndicator(current: Int, total: Int) = "Page $current of $total"

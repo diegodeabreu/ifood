@@ -1,6 +1,5 @@
 package com.diegodeabreu.ifoodprocesso.presentation.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diegodeabreu.ifoodprocesso.analytics.Analytics
@@ -11,6 +10,7 @@ import com.diegodeabreu.ifoodprocesso.domain.model.Recipe
 import com.diegodeabreu.ifoodprocesso.domain.model.RecipeDetail
 import com.diegodeabreu.ifoodprocesso.domain.usecase.GetRecipeDetailsUseCase
 import com.diegodeabreu.ifoodprocesso.domain.usecase.SearchRecipesUseCase
+import com.diegodeabreu.ifoodprocesso.presentation.ui.Strings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +25,7 @@ sealed interface RecipeUiState {
         val currentPage: Int = 1,
         val totalPages: Int = 1,
     ) : RecipeUiState
+
     data class Error(val message: String) : RecipeUiState
 }
 
@@ -39,12 +40,11 @@ class RecipeViewModel(
     private val searchRecipesUseCase: SearchRecipesUseCase,
     private val getRecipeDetailsUseCase: GetRecipeDetailsUseCase,
     private val queries: RecipeDatabaseQueries,
-    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<RecipeUiState>(RecipeUiState.Idle)
     val uiState: StateFlow<RecipeUiState> = _uiState.asStateFlow()
 
-    private val _searchQuery = MutableStateFlow(savedStateHandle["searchQuery"] ?: "")
+    private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private val _selectedRecipe = MutableStateFlow<Recipe?>(null)
@@ -58,10 +58,7 @@ class RecipeViewModel(
         FAVORITES,
     }
 
-    private val _currentTab =
-        MutableStateFlow(
-            savedStateHandle.get<String>("currentTab")?.let { RecipeTab.valueOf(it) } ?: RecipeTab.SEARCH,
-        )
+    private val _currentTab = MutableStateFlow(RecipeTab.SEARCH)
     val currentTab: StateFlow<RecipeTab> = _currentTab.asStateFlow()
 
     private val _favorites = MutableStateFlow<List<Recipe>>(emptyList())
@@ -93,7 +90,7 @@ class RecipeViewModel(
             }
         _favorites.value = savedFavorites
         _favoriteIds.value = savedFavorites.map { it.id }.toSet()
-        Analytics.screen("RecipeScreen")
+        Analytics.screen(Strings.screenRecipe)
     }
 
     val favoriteTotalPages: Int
@@ -116,33 +113,36 @@ class RecipeViewModel(
     fun nextFavoritePage() {
         if (favoriteCurrentPage < favoriteTotalPages) {
             favoriteCurrentPage++
-            Analytics.track("favorite_pagination", mapOf("page" to favoriteCurrentPage))
+            Analytics.track(
+                Strings.eventFavoritePagination,
+                mapOf(Strings.paramPage to favoriteCurrentPage),
+            )
         }
     }
 
     fun previousFavoritePage() {
         if (favoriteCurrentPage > 1) {
             favoriteCurrentPage--
-            Analytics.track("favorite_pagination", mapOf("page" to favoriteCurrentPage))
+            Analytics.track(
+                Strings.eventFavoritePagination,
+                mapOf(Strings.paramPage to favoriteCurrentPage),
+            )
         }
     }
 
     fun updateQuery(query: String) {
         _searchQuery.value = query
-        savedStateHandle["searchQuery"] = query
     }
 
     fun clearSearch() {
         _searchQuery.value = ""
-        savedStateHandle["searchQuery"] = ""
         _uiState.value = RecipeUiState.Idle
-        Analytics.track("clear_search")
+        Analytics.track(Strings.eventClearSearch)
     }
 
     fun setTab(tab: RecipeTab) {
         _currentTab.value = tab
-        savedStateHandle["currentTab"] = tab.name
-        Analytics.track("tab_switch", mapOf("tab" to tab.name))
+        Analytics.track(Strings.eventTabSwitch, mapOf(Strings.paramTab to tab.name))
     }
 
     fun toggleFavorite(recipe: Recipe) {
@@ -180,8 +180,12 @@ class RecipeViewModel(
         _favorites.value = currentFavs
 
         Analytics.track(
-            "recipe_favorite_toggle",
-            mapOf("recipe_id" to recipe.id, "title" to recipe.title, "is_favorite" to !isFav),
+            Strings.eventFavoriteToggle,
+            mapOf(
+                Strings.paramRecipeId to recipe.id,
+                Strings.paramTitle to recipe.title,
+                Strings.paramIsFavorite to !isFav,
+            ),
         )
     }
 
@@ -189,10 +193,13 @@ class RecipeViewModel(
         _selectedRecipe.value = recipe
         if (recipe != null) {
             fetchRecipeDetails(recipe.id)
-            Analytics.track("recipe_view_detail", mapOf("recipe_id" to recipe.id, "title" to recipe.title))
-            Analytics.screen("RecipeDetailScreen")
+            Analytics.track(
+                Strings.eventViewDetail,
+                mapOf(Strings.paramRecipeId to recipe.id, Strings.paramTitle to recipe.title),
+            )
+            Analytics.screen(Strings.screenRecipeDetail)
         } else {
-            Analytics.screen("RecipeScreen")
+            Analytics.screen(Strings.screenRecipe)
         }
     }
 
@@ -206,9 +213,9 @@ class RecipeViewModel(
                     is DomainResult.Error -> {
                         val message =
                             when (val err = result.error) {
-                                is AppError.Network -> err.message ?: "Network error"
-                                is AppError.Database -> err.message ?: "Database error"
-                                is AppError.Unknown -> err.message ?: "Unknown error"
+                                is AppError.Network -> err.message ?: Strings.networkError
+                                is AppError.Database -> err.message ?: Strings.unknownError
+                                is AppError.Unknown -> err.message ?: Strings.unknownError
                             }
                         RecipeDetailUiState.Error(message)
                     }
@@ -221,7 +228,7 @@ class RecipeViewModel(
         currentQuery = query
         currentPage = 1
         fetchPage(currentPage)
-        Analytics.track("recipe_search", mapOf("query" to query))
+        Analytics.track(Strings.eventSearch, mapOf(Strings.paramQuery to query))
     }
 
     fun nextPage() {
@@ -230,7 +237,10 @@ class RecipeViewModel(
             if (currentPage < currentState.totalPages) {
                 currentPage++
                 fetchPage(currentPage)
-                Analytics.track("search_pagination", mapOf("page" to currentPage, "query" to currentQuery))
+                Analytics.track(
+                    Strings.eventSearchPagination,
+                    mapOf(Strings.paramPage to currentPage, Strings.paramQuery to currentQuery),
+                )
             }
         }
     }
@@ -239,7 +249,10 @@ class RecipeViewModel(
         if (currentPage > 1) {
             currentPage--
             fetchPage(currentPage)
-            Analytics.track("search_pagination", mapOf("page" to currentPage, "query" to currentQuery))
+            Analytics.track(
+                Strings.eventSearchPagination,
+                mapOf(Strings.paramPage to currentPage, Strings.paramQuery to currentQuery),
+            )
         }
     }
 
@@ -252,7 +265,11 @@ class RecipeViewModel(
                 when (result) {
                     is DomainResult.Success -> {
                         val searchResult = result.data
-                        val totalPages = kotlin.math.ceil(searchResult.totalResults.toDouble() / pageSize).toInt().coerceAtLeast(1)
+                        val totalPages =
+                            kotlin.math
+                                .ceil(searchResult.totalResults.toDouble() / pageSize)
+                                .toInt()
+                                .coerceAtLeast(1)
                         RecipeUiState.Success(
                             recipes = searchResult.recipes,
                             totalResults = searchResult.totalResults,
@@ -260,12 +277,13 @@ class RecipeViewModel(
                             totalPages = totalPages,
                         )
                     }
+
                     is DomainResult.Error -> {
                         val message =
                             when (val err = result.error) {
-                                is AppError.Network -> err.message ?: "Network error"
-                                is AppError.Database -> err.message ?: "Database error"
-                                is AppError.Unknown -> err.message ?: "Unknown error"
+                                is AppError.Network -> err.message ?: Strings.networkError
+                                is AppError.Database -> err.message ?: Strings.unknownError
+                                is AppError.Unknown -> err.message ?: Strings.unknownError
                             }
                         RecipeUiState.Error(message)
                     }
